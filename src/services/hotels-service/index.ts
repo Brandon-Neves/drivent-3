@@ -1,12 +1,13 @@
 import { notFoundError } from '@/errors';
-import { hotelsError } from '@/errors/hotels-error';
+import { cannotListHotelsError } from '@/errors/hotels-error';
 import enrollmentRepository from '@/repositories/enrollment-repository';
 import hotelsRepository from '@/repositories/hotels-repository';
 import ticketsRepository from '@/repositories/tickets-repository';
 import enrollmentsService from '../enrollments-service';
+import ticketService from '../tickets-service';
 
-async function findHotels(userId: number) {
-  const enrollment = await enrollmentsService.getOneWithAddressByUserId(userId);
+async function findAllHotels(userId: number) {
+  const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
 
   if (!enrollment) {
     throw notFoundError();
@@ -14,26 +15,27 @@ async function findHotels(userId: number) {
 
   const ticketEnrollment = await ticketsRepository.findTicketByEnrollmentId(enrollment.id);
 
-  if (
-    !ticketEnrollment ||
-    ticketEnrollment.status === 'RESERVED' ||
-    !ticketEnrollment.TicketType.includesHotel ||
-    ticketEnrollment.TicketType.isRemote
-  ) {
-    throw hotelsError();
-  }
+  const ticket = await ticketService.getTicketByUserId(userId);
+  if (!ticket) throw notFoundError();
+
+  if (ticket.status !== 'PAID') throw Error('PaymentRequired');
+
+  const hotels = await hotelsRepository.findHotels();
+  if (!hotels || !hotels[0]) throw notFoundError();
+
+  return hotels;
 }
 
 async function getHotels(userId: number) {
-  await findHotels(userId);
+  await findAllHotels(userId);
 
-  const hotels = await hotelsRepository.getHotels();
+  const hotels = await hotelsRepository.findHotels();
 
   return hotels;
 }
 
 async function getHotelsRooms(userId: number, hotelId: number) {
-  await findHotels(userId);
+  await findAllHotels(userId);
 
   const hotels = await hotelsRepository.getRoomsId(hotelId);
 
@@ -43,6 +45,6 @@ async function getHotelsRooms(userId: number, hotelId: number) {
   return hotels;
 }
 
-const hotelsServices = { getHotels, getHotelsRooms };
+const hotelsServices = { findAllHotels, getHotels, getHotelsRooms };
 
 export default hotelsServices;

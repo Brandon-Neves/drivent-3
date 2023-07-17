@@ -7,15 +7,15 @@ export async function getHotels(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
 
   try {
-    const hotels = await hotelsServices.getHotels(userId);
-    return res.send(hotels);
+    const hotels = await hotelsServices.findAllHotels(userId);
+    return res.status(httpStatus.OK).send(hotels);
   } catch (error) {
     if (error.name === 'NotFoundError') {
-      return res.status(httpStatus.NOT_FOUND);
-    } else if (error.name === 'HotelsError') {
-      return res.status(httpStatus.PAYMENT_REQUIRED).send(console.log(error));
+      return res.sendStatus(httpStatus.NOT_FOUND);
+    } else if (error.message === 'PaymentRequired') {
+      return res.sendStatus(httpStatus.PAYMENT_REQUIRED);
     } else {
-      return res.status(httpStatus.BAD_REQUEST).send(console.log(error));
+      res.sendStatus(httpStatus.BAD_REQUEST);
     }
   }
 }
