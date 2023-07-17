@@ -3,9 +3,10 @@ import { hotelsError } from '@/errors/hotels-error';
 import enrollmentRepository from '@/repositories/enrollment-repository';
 import hotelsRepository from '@/repositories/hotels-repository';
 import ticketsRepository from '@/repositories/tickets-repository';
+import enrollmentsService from '../enrollments-service';
 
 async function findHotels(userId: number) {
-  const enrollment = await enrollmentRepository.findWithAddressByUserId(userId);
+  const enrollment = await enrollmentsService.getOneWithAddressByUserId(userId);
 
   if (!enrollment) {
     throw notFoundError();
