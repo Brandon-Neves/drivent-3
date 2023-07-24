@@ -4,9 +4,8 @@ import { AuthenticatedRequest } from '@/middlewares';
 import { Response, NextFunction } from 'express';
 
 export async function getAllBooking(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-  const { userId } = req;
-
   try {
+    const { userId } = req;
     const booking = await bookingService.getBooking(userId);
     return res.status(httpStatus.OK).send({
       id: booking.id,
@@ -18,10 +17,9 @@ export async function getAllBooking(req: AuthenticatedRequest, res: Response, ne
 }
 
 export async function getBookingRoom(req: AuthenticatedRequest, res: Response, next: NextFunction) {
-  const { userId } = req;
-  const { roomId } = req.body as Record<string, number>;
-
   try {
+    const { userId } = req;
+    const { roomId } = req.body as Record<string, number>;
     const booking = await bookingService.bookingRoomId(userId, roomId);
 
     return res.status(httpStatus.OK).send({
