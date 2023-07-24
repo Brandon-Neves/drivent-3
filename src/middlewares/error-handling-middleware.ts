@@ -20,6 +20,12 @@ export function handleApplicationErrors(
     });
   }
 
+  if (err.name === 'CannotListHotelsError') {
+    return res.status(httpStatus.NOT_FOUND).send({
+      message: err.message,
+    });
+  }
+
   if (err.name === 'InvalidCredentialsError') {
     return res.status(httpStatus.UNAUTHORIZED).send({
       message: err.message,
@@ -32,12 +38,29 @@ export function handleApplicationErrors(
     });
   }
 
+  if (err.name === 'BadRequestError') {
+    return res.status(httpStatus.BAD_REQUEST).send({
+      message: err.message,
+    });
+  }
+
   if (err.name === 'NotFoundError') {
     return res.status(httpStatus.NOT_FOUND).send({
       message: err.message,
     });
   }
 
+  if (err.name === 'CanotBookError') {
+    return res.status(httpStatus.FORBIDDEN).send({
+      message: err.message,
+    });
+  }
+
+  if (err.name === 'ForBiddenError') {
+    return res.status(httpStatus.FORBIDDEN).send({
+      message: err.message,
+    });
+  }
   /* eslint-disable-next-line no-console */
   console.error(err.name);
   res.status(httpStatus.INTERNAL_SERVER_ERROR).send({
